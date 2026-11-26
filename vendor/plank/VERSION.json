@@ -1,0 +1,13 @@
+{
+  "package": "plank",
+  "version": "0.14.0",
+  "commit": "a60018519bb239f6ba3501fd19b5c809e1743289",
+  "dirty": false,
+  "files": [
+    "plank-core.js",
+    "plank.css",
+    "COPYRIGHTS",
+    "LICENSE"
+  ],
+  "syncedAt": "2026-11-23T23:47:00.579Z"
+}

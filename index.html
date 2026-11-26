@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111113">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="denr">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="A small R workspace that runs in your browser. Edit scripts, explore data with Plank, and run R on your device.">
+  <title>denr</title>
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./icons/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+<div class="app" id="app">
+  <div class="notice" id="notice" hidden role="status"></div>
+  <main id="main" class="layout"></main>
+  <footer class="bottom-bar" id="bottom-bar">
+    <div class="key-strip" id="key-strip" aria-label="R keys">
+      <button data-insert="<-">&lt;-</button><button data-insert="|>">|&gt;</button><button data-insert="()">( )</button><button data-insert="[]">[ ]</button><button data-insert="{}">{ }</button><button data-insert="&quot;&quot;">""</button><button data-insert="~">~</button><button data-insert="c()">c()</button><button data-insert="::">::</button><button data-insert="$">$</button><button data-insert="@">@</button><button data-insert="%in%">%in%</button><button data-insert="!">!</button><button data-insert="&amp;">&amp;</button><button data-insert="|">|</button><button data-insert="#">#</button><button data-key="tab">Tab</button><button data-key="left" aria-label="Cursor left">←</button><button data-key="right" aria-label="Cursor right">→</button><button data-key="undo" aria-label="Undo">↶</button><button data-key="redo" aria-label="Redo">↷</button><button data-key="escape" aria-label="Escape">esc</button>
+    </div>
+    <nav class="switcher" id="switcher" aria-label="Panels" hidden></nav>
+    <div class="status" id="status">
+      <button id="stop-run" class="stop-button" hidden title="Stop the running code (R keeps its objects)"><span data-icon="stop"></span>Stop</button>
+      <button id="app-version" class="app-version" type="button" title="About">denr</button>
+      <button id="workspace-button" class="workspace-button" aria-haspopup="menu" title="Workspaces: switch, save, rename"><span data-icon="layers"></span><span id="workspace-button-name">Default</span></button>
+      <button id="runtime-button" class="r-status" title="Start R on this device"><span class="status-dot" id="runtime-dot"></span><span id="runtime-label">Start R</span></button>
+      <!-- Text that changes as you work sits in fixed-width slots, so nothing around it moves. -->
+      <span id="memory" class="memory slot" hidden title="Memory R is using"><span data-icon="memory"></span><span id="memory-value"></span></span>
+      <span id="save-status" class="status-text slot save-status" role="status">Opening…</span>
+      <span id="cursor-status" class="status-text slot cursor-status"></span>
+      <span id="last-output" class="status-text slot last-output" title="Last line of output"></span>
+    </div>
+    <!-- Run and the buttons beside it. An empty slot about two buttons wide follows at the right end (iPadOS keeps its keyboard button there). -->
+    <div class="bar-actions" id="bar-actions">
+      <button id="open-palette" class="icon-button palette-button" aria-label="Commands" title="Commands (Ctrl + K)" data-icon="command"></button>
+      <button id="ui-undo" class="icon-button undo-button" aria-label="Undo closing a pane, tab or file" title="Undo a closed pane, tab or deleted file" data-icon="undo" disabled></button>
+      <button id="ui-redo" class="icon-button undo-button" aria-label="Redo" title="Redo" data-icon="redo" disabled></button>
+      <button id="fullscreen-button" class="icon-button" aria-label="Full screen" title="Full screen" data-icon="expand" hidden></button>
+      <button id="settings-button" class="icon-button" aria-label="Settings" title="Settings" data-icon="gear"></button>
+      <button id="run-bottom" class="run-big" aria-label="Run the line or selection" title="Run the line or selection (Ctrl/⌘ + Enter)"><span data-icon="play" id="run-bottom-icon"></span></button>
+    </div>
+  </footer>
+</div>
+
+<!-- Panel parts live here while they are not on screen; the pane shell moves them into panes. -->
+<div id="panel-store" hidden>
+  <div id="console-tools" class="tool-row">
+    <button class="icon-button" id="clear-console" aria-label="Clear console" title="Clear console (R keeps its objects)" data-icon="clear"></button>
+    <button class="icon-button" id="history-up" aria-label="Previous command" title="Previous command" data-icon="arrow-up"></button>
+    <button class="icon-button" id="history-down" aria-label="Next command" title="Next command" data-icon="arrow-down"></button>
+    <button class="icon-button" id="reset-r" aria-label="Reset R" title="Reset R (clears objects; files stay)" data-icon="refresh"></button>
+  </div>
+  <div id="console-body" class="console-body">
+    <div class="console-scroll" id="console-scroll">
+      <div class="console-welcome" id="console-welcome">
+        <p class="welcome-title">A real R session, right here.</p>
+        <p class="muted">Everything computes on this device. Run a script, type below, or try:</p>
+        <div class="console-chips"><button id="start-console" class="chip">Start R</button><button class="chip" data-example="summary(mtcars)">summary(mtcars)</button><button class="chip" data-example="View(mtcars)">View(mtcars)</button><button class="chip" data-example="plot(pressure, pch = 19)">plot(pressure)</button></div>
+      </div>
+      <div id="console-output" aria-label="R output" aria-live="polite" aria-relevant="additions"></div>
+      <pre id="console-pending" class="console-pending" hidden></pre>
+      <form class="console-form" id="console-form"><label for="console-input" class="prompt" id="console-prompt">&gt;</label><span class="console-input-wrap"><span class="console-caret" aria-hidden="true"></span><textarea id="console-input" aria-label="R command" placeholder=" " rows="1" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" enterkeyhint="send"></textarea></span><button class="icon-button send-button" id="send-command" type="submit" aria-label="Run command" title="Run (Enter); Shift + Enter for a new line" data-icon="play"></button></form>
+    </div>
+  </div>
+
+  <div id="files-tools" class="tool-row">
+    <button class="icon-button" id="import-files" aria-label="Import files" title="Import files" data-icon="import"></button>
+    <button class="icon-button" id="new-file" aria-label="New file" title="New file" data-icon="file-plus"></button>
+    <button class="icon-button" id="new-table" aria-label="New CSV" title="New CSV table" data-icon="table"></button>
+    <button class="icon-button" id="share-link" aria-label="Share files as a link" title="Share files as a link" data-icon="link"></button>
+    <button class="icon-button" id="export-project" aria-label="Export project" title="Export project (.pocketr.zip)" data-icon="share"></button>
+    <button class="icon-button" id="open-project" aria-label="Open project" title="Open a project" data-icon="folder"></button>
+  </div>
+  <div id="files-sub" class="sub-bar files-sub"><span data-icon="folder"></span><span class="workspace-name" id="workspace-name">Default</span><span class="muted" id="file-count"></span></div>
+  <div id="files-body" class="files-body">
+    <div class="removed-in-r" id="removed-in-r" hidden></div>
+    <div class="file-list" id="file-list"></div>
+    <p class="muted pad">Files stay in this browser unless you export them or run code that sends them elsewhere.</p>
+  </div>
+
+  <div id="data-tools" class="tool-row">
+    <div class="segmented" role="group" aria-label="Data mode"><button id="data-mode-view" aria-pressed="true">View</button><button id="data-mode-edit" aria-pressed="false">Edit</button></div>
+    <button class="text-button" id="data-send" title="Make a data frame in R from the rows and columns shown">Send to R</button>
+    <button class="icon-button" id="download-data" aria-label="Save or share this table file" title="Save or share" data-icon="share"></button>
+  </div>
+  <div id="data-sub" class="sub-bar"><select id="data-file" aria-label="Table file"></select><div class="dataset-tabs" id="dataset-tabs" role="tablist" aria-label="Open datasets" hidden></div></div>
+  <div id="data-body" class="data-body">
+    <div class="data-view" id="data-view-area">
+      <div class="viewer-host" id="viewer-host">
+        <div class="empty-state viewer-empty" id="viewer-empty"><span data-icon="table"></span><p>Choose a table above, import a CSV, Excel, parquet or .plank.html file, or run <code>View(df)</code> in R.</p><button class="text-button" id="import-data">Import a table</button></div>
+      </div>
+    </div>
+    <div class="data-edit" id="data-edit-area" hidden>
+      <div class="data-tools"><input id="table-search" class="filter-input" type="search" placeholder="Find in table" aria-label="Search table"><label class="check-line"><input type="checkbox" id="has-header" checked> Header row</label></div>
+      <div class="table-scroll" id="table-scroll"><table id="data-table" aria-label="Editable CSV data"></table><div class="empty-state" id="data-empty" hidden><p>Choose a CSV or TSV file above.</p></div><p class="empty-state" id="data-edit-error" hidden></p></div>
+      <div class="data-bottom"><div class="row-actions"><button class="text-button" id="add-row">＋ Row</button><button class="text-button" id="add-column">＋ Column</button><button class="icon-button" id="undo-data" aria-label="Undo table edit" data-icon="undo"></button></div><span class="muted" id="table-status"></span><div class="pagination"><button class="icon-button" id="page-prev" aria-label="Previous page">‹</button><span id="page-label">1 / 1</span><button class="icon-button" id="page-next" aria-label="Next page">›</button></div></div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" multiple hidden>
+<input type="file" id="project-input" accept=".zip,.json" hidden>
+<dialog id="name-dialog"><form id="name-form"><div class="dialog-heading"><h2 id="name-title">New file</h2><button class="icon-button" type="button" data-close="name-dialog" aria-label="Close" data-icon="close"></button></div><label class="field-label" for="file-name" id="name-label">File name</label><input id="file-name" class="text-input" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><p class="muted" id="name-note"></p><div class="dialog-actions"><button class="secondary" type="button" data-close="name-dialog">Cancel</button><button class="primary" type="submit" id="name-submit">Save</button></div></form></dialog>
+<dialog id="confirm-dialog"><form method="dialog"><div class="dialog-heading"><h2 id="confirm-title">Confirm</h2></div><p id="confirm-message" class="muted"></p><div class="dialog-actions"><button class="secondary" value="cancel">Cancel</button><button class="primary" id="confirm-action" value="confirm">Continue</button></div></form></dialog>
+<dialog id="help-dialog"><div class="dialog-heading"><h2>About denr</h2><button class="icon-button" data-close="help-dialog" aria-label="Close" data-icon="close"></button></div><div class="help-copy">
+  <p><strong>Editor.</strong> Run runs the script or the R chunk; <strong>Ctrl/⌘ + Enter</strong> (or the green button below) runs the statement at the cursor and moves on. Suggestions appear after three letters; <strong>Tab</strong> accepts, <strong>Ctrl + Space</strong> asks for them.</p>
+  <p><strong>Console.</strong> A real R session in this browser. <span id="help-stop">Stop interrupts a long run and keeps your objects; <code>readline()</code> asks for an answer below.</span> <code>?topic</code> opens the Help tab.</p>
+  <p><strong>Panes.</strong> Drag the handles to resize; each pane's ⋯ menu shows another panel, splits it, or closes it. Settings has themes, fonts, zoom and plot size.</p>
+  <p><strong>Data.</strong> Tables open in <a href="https://github.com/jossammil/plank" target="_blank" rel="noopener">Plank</a>; <code>View(df)</code> opens a data frame and <strong>Send to R</strong> makes one from the rows and columns shown.</p>
+  <p>Files and settings stay on this device. After R has started once, denr works offline.</p>
+  <p class="muted" id="versions"></p>
+  <a href="https://docs.r-wasm.org/" target="_blank" rel="noopener">Built with webR ↗</a></div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

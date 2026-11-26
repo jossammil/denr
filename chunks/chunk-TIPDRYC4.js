@@ -1,0 +1,1 @@
+var e=t=>/\.(md|markdown)$/i.test(t),s=t=>/\.(qmd|rmd|md|markdown|typ)$/i.test(t),r=t=>/\.typ$/i.test(t),m=t=>/\.(qmd|rmd)$/i.test(t),p=(t,o="html")=>`${t.replace(/\.[^.]+$/,"")}.${o}`;export{e as a,s as b,r as c,m as d,p as e};

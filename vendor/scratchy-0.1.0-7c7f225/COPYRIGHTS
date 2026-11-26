@@ -1,0 +1,49 @@
+scratchy bundles third-party software and fonts. Each keeps its own licence.
+
+inst/js/rough.js
+  rough.js 4.6.4, Copyright (c) 2019 Preet Shihn. MIT License (inst/js/rough.LICENSE).
+
+inst/js/perfect-freehand.js
+  perfect-freehand 1.2.0, Copyright (c) 2021 Stephen Ruiz Ltd. MIT License
+  (inst/js/perfect-freehand.LICENSE). Wrapped for use in V8.
+
+inst/js/lz-string.min.js
+  lz-string 1.5.0, Copyright (c) 2013 pieroxy. MIT License (inst/js/lz-string.LICENSE).
+
+inst/js/exc-shapes.js
+  Contains a JavaScript port of the element-to-rough.js shape logic from
+  Excalidraw (packages/element/src/shape.ts, bounds.ts and utils.ts), and R code
+  mirrors Excalidraw's font metrics and defaults (packages/common/src).
+  Excalidraw is Copyright (c) 2020 Excalidraw, MIT License.
+
+inst/fonts/
+  Excalifont: Copyright (c) 2024 Excalidraw. SIL Open Font License 1.1.
+  Virgil: Copyright (c) 2021 Ellinor Rapp, Reserved Font Name "Virgil". SIL OFL 1.1.
+  Comic Shanns: Copyright (c) 2018 Shannon Miwa. MIT License.
+  Caveat, Patrick Hand, Architects Daughter, Gochi Hand, Nunito and Lilita One:
+  SIL Open Font License 1.1 (from Google Fonts).
+  Cascadia Code: Copyright (c) 2019 Microsoft Corporation, Reserved Font Name
+  "Cascadia Code". SIL OFL 1.1 (from Microsoft's release).
+  Licence texts are in inst/fonts/LICENSES/. Excalifont and Virgil are also
+  included as TrueType files converted from the original WOFF2 so that R's
+  graphics devices can read them; the Caveat and Nunito variable fonts are
+  included as static Regular and Bold instances. Cascadia Code is
+  Microsoft's own static Regular and Bold (release 2407.24), unmodified.
+
+inst/stickers/
+  Excalidraw libraries from https://libraries.excalidraw.com (repository
+  excalidraw/excalidraw-libraries, MIT License, Copyright (c) 2020 Excalidraw).
+  Each library's title, authors and source are listed in
+  inst/stickers/manifest.csv.
+
+inst/js/peeps.js
+  DiceBear core and the Open Peeps style 9.4.2 (code: MIT, Copyright (c)
+  Florian Koerner), bundled for V8. The Open Peeps artwork is by Pablo
+  Stanley, CC0 1.0.
+
+inst/htmlwidgets/lib/excalidraw-widget/
+  Built from @excalidraw/excalidraw 0.18.1 (MIT, Copyright (c) 2020
+  Excalidraw), React 19 (MIT, Meta Platforms), lz-string 1.5.0 (MIT,
+  pieroxy), DiceBear with Open Peeps (MIT code, CC0 art) and their
+  dependencies; see excalidraw-widget.js.LEGAL.txt for the bundled licences. Excalidraw's fonts
+  are included under their own licences (OFL-1.1 / MIT).
